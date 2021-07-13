@@ -8,6 +8,10 @@ class Application(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
+        self.hours=0
+        self.secs=0
+        self.mins=0
+        self.time_disp=time.strftime("%H")
         self.create_widgets()
         self.grid(row=4,column=6)
         self.docount=True
@@ -49,19 +53,30 @@ class Application(tk.Frame):
         self.stop_button.grid(row=4, column=7)
         self.start=tk.Button(self,padx=30,text="Start",command=self.start)
         self.start.grid(row=4,column=8)
+        self.up=tk.Button(self,padx=30,text="Up",command=self.up_count)
+        self.up.grid(row=4,column=9)
+        self.down = tk.Button(self, padx=30, text="down", command=self.down_count)
+        self.down.grid(row=4, column=10)
 
     # 启动倒计时
     def assign_time(self):
-        self.hours=int(self.hour_enter.get()) if self.hour_enter.get() else 0
-        self.mins=int(self.mins_enter.get()) if self.mins_enter.get() else 0
-        self.secs=int(self.secs_enter.get()) if self.secs_enter.get() else 0
+        self.hours=int(self.hour_enter.get()) if self.hour_enter.get() else self.hours
+        self.mins=int(self.mins_enter.get()) if self.mins_enter.get() else self.mins
+        self.secs=int(self.secs_enter.get()) if self.secs_enter.get() else self.secs
         self.count()
     # 显示正常时间
     def disp(self):
             if self.dis==True:
-                text_input = time.strftime("%Y-%m-%d\n%H:%M:%S")
-                self.label.config(text=text_input)
-                self.after_id_time=self.after(1000, self.disp)
+                if int(self.time_disp)<12:
+                    text_input = time.strftime("%Y-%m-%d\n%H:%M:%S am")
+                    self.label.config(text=text_input)
+                    self.time_disp=time.strftime("%H")
+                    self.after_id_time=self.after(1000, self.disp)
+                else:
+                    text_input = time.strftime("%Y-%m-%d\n%H:%M:%S pm")
+                    self.label.config(text=text_input)
+                    self.time_disp = time.strftime("%H")
+                    self.after_id_time = self.after(1000, self.disp)
             else:
                 return
     def time(self):
@@ -74,6 +89,47 @@ class Application(tk.Frame):
         self.docount=True
         self.count()
 
+    def up_count(self):
+        self.after_cancel(self.after_id_time)
+        self.secs=self.secs+1
+        if self.secs>=60:
+            self.mins=self.mins+1
+            self.secs=0
+        if self.mins>=60:
+            self.hours=self.hours+1
+            self.mins=0
+        timer = '{:02d}:{:02d}:{:02d}'.format(self.hours, self.mins, self.secs)
+        self.label.config(text=timer)
+    def down_count(self):
+        self.after_cancel(self.after_id_time)
+        if (self.mins==0 and self.hours==0 and self.secs==0):
+            timer = '{:02d}:{:02d}:{:02d}'.format(self.hours, self.mins, self.secs)
+            self.label.config(text=timer)
+        if (self.hours==0 and self.mins==0 and self.secs>0):
+            self.secs = self.secs - 1
+            timer = '{:02d}:{:02d}:{:02d}'.format(self.hours, self.mins, self.secs)
+            self.label.config(text=timer)
+
+        if (self.hours==0 and self.mins>0 and self.secs>=0):
+            self.secs = self.secs - 1
+            if self.secs==0:
+                self.mins=self.mins-1
+                self.secs=59
+            timer = '{:02d}:{:02d}:{:02d}'.format(self.hours, self.mins, self.secs)
+            self.label.config(text=timer)
+
+        if (self.hours>0 and self.mins>=0 and self.secs>=0):
+            self.secs = self.secs - 1
+            if self.secs==0:
+                self.mins=self.mins-1
+                self.secs=59
+            if self.mins==0:
+                self.hours=self.hours-1
+                self.mins=59
+            timer = '{:02d}:{:02d}:{:02d}'.format(self.hours, self.mins, self.secs)
+            self.label.config(text=timer)
+        timer = '{:02d}:{:02d}:{:02d}'.format(self.hours, self.mins, self.secs)
+        self.label.config(text=timer)
     def confirm_count(self):
         self.docount=True
         self.count()
