@@ -57,13 +57,18 @@ class Application(tk.Frame):
         self.up.grid(row=4,column=9)
         self.down = tk.Button(self, padx=30, text="down", command=self.down_count)
         self.down.grid(row=4, column=10)
+        self.reset=tk.Button(self, padx=30, text="reset", command=self.reset_count)
+        self.reset.grid(row=4,column=11)
 
     # 启动倒计时
     def assign_time(self):
+        self.after_cancel(self.after_id_time)
         self.hours=int(self.hour_enter.get()) if self.hour_enter.get() else self.hours
         self.mins=int(self.mins_enter.get()) if self.mins_enter.get() else self.mins
         self.secs=int(self.secs_enter.get()) if self.secs_enter.get() else self.secs
-        self.count()
+        timer = '{:02d}:{:02d}:{:02d}'.format(self.hours, self.mins, self.secs)
+        self.label.config(text=timer)
+        # self.count()
     # 显示正常时间
     def disp(self):
             if self.dis==True:
@@ -79,12 +84,20 @@ class Application(tk.Frame):
                     self.after_id_time = self.after(1000, self.disp)
             else:
                 return
+    def reset_count(self):
+
+        self.hours=0
+        self.secs=0
+        self.mins=0
+        timer = '{:02d}:{:02d}:{:02d}'.format(self.hours, self.mins, self.secs)
+        self.label.config(text=timer)
     def time(self):
         self.after_cancel(self.after_id_count)
         self.dis=True
         self.disp()
     def stop(self):
         self.docount=False
+        self.after_cancel(self.after_id_count)
     def start(self):
         self.docount=True
         self.count()
@@ -119,13 +132,15 @@ class Application(tk.Frame):
             self.label.config(text=timer)
 
         if (self.hours>0 and self.mins>=0 and self.secs>=0):
-            self.secs = self.secs - 1
-            if self.secs==0:
-                self.mins=self.mins-1
-                self.secs=59
-            if self.mins==0:
+            if (self.secs==0 and self.mins==0):
                 self.hours=self.hours-1
                 self.mins=59
+                self.secs=59
+            if self.mins>0 and self.secs==0 and self.hours>0:
+                self.mins=self.mins-1
+                self.secs=59
+            if self.mins>0 and self.secs>0 and self.hours>0:
+                self.secs=self.secs-1
             timer = '{:02d}:{:02d}:{:02d}'.format(self.hours, self.mins, self.secs)
             self.label.config(text=timer)
         timer = '{:02d}:{:02d}:{:02d}'.format(self.hours, self.mins, self.secs)
